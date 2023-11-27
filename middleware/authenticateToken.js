@@ -16,5 +16,24 @@ module.exports = {
             req.user = user;
             next();
         });
-    }
+    },
+    checkRole: async (req, res, next) => {
+        try {
+            const userId = req.user.id;
+            const user = await db.user.findOne({
+                where: { id: userId },
+            });
+
+            if (user.role !== "member") {
+                return res
+                    .status(403)
+                    .json({ error: "Unauthorized. Only member can access this route" });
+            }
+
+            next();
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: "Internal Server Error" });
+        }
+    },
 };
